@@ -18,10 +18,40 @@ const app = express();
 
 app.use(express.json())
 
-// app.get('/', (req, res)=>{
-//     res.send('111  Hello world!');
+app.post('/auth/login', async (req, res) => {
+   try{
+   const user = await UserSchema.findOne({email: req.body.email})
 
-// }) 
+   if(!user){
+    return res.status(400).json({
+        message: 'User is not found'
+    })
+   }
+   const isValidPass = await bcrypt.compare(req.body.password, user._doc.passwordHash)
+    if (!isValidPass) {
+        return res.status(400).json({
+            message: 'Wrong login or password'
+        })
+    }  
+
+    const token = jwt.sign({
+        _id: user._id,
+    }, 'secret123', {
+        expiresIn: '30d'
+    })
+
+    const {passwordHash, ...userData} = user._doc
+
+    res.json({...userData, token})
+
+} 
+   catch(err){
+    console.log(err)
+    res.status(500).json({
+        message: 'Failed to login'
+    })
+   }
+})
 
 app.post('/auth/register', registerValidation, async (req, res) => {
  try{
@@ -62,21 +92,7 @@ app.post('/auth/register', registerValidation, async (req, res) => {
  }
 })
 
-// app.post('/auth/login', (req, res) => {
-//     console.log(req.body)
 
-//     const token = jwt.sign({
-//         email: req.body.email,
-//         fullName: 'Иван Иванов',
-//     }, 'secret123')
-
-
-
-//     res.json({
-//         success: true,
-//         token
-//     })
-// })
 
 app.listen(4444, (err)=>{
     if(err){
