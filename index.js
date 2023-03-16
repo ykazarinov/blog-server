@@ -6,14 +6,11 @@ import mongoose from 'mongoose';
 
 
 
-import { registerValidation, loginValidation } from './validations.js';
+import { registerValidation, loginValidation, postCreateValidation } from './validations.js';
 import checkAuth from './utils/checkAuth.js';
 
 import * as UserController from './controllers/UserController.js'
 import * as PostController from './controllers/PostController.js'
-
-
-// mongoose.connect('mongodb+srv://admin:GyccV8HSloqpIU3z@cluster0.hgxapfo.mongodb.net/francoislecoq?retryWrites=true&w=majority'
 
 mongoose.connect(process.env.DB_ACCESS
 ).then(()=>{console.log('DB ok')
@@ -31,10 +28,10 @@ app.post('/auth/login', loginValidation, UserController.login)
 app.post('/auth/register', registerValidation, UserController.register)
 app.get('/auth/me', checkAuth, UserController.getMe)
 
-// app.get('/posts', PostController.getAll)
-// app.get('/posts/:id', checkAuth, PostController.getOne)
-// app.post('/posts',  PostController.create)
-// app.delete('/posts',  PostController.remove)
+app.get('/posts', PostController.getAll)
+app.get('/posts/:id', PostController.getOne)
+app.post('/posts', checkAuth, postCreateValidation,  PostController.create)
+app.delete('/posts/:id', checkAuth,  PostController.remove)
 // app.patch('/posts',  PostController.update)
 
 
