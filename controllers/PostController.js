@@ -14,13 +14,16 @@ export  const getOne = async (req, res) => {
                 returnDocument: 'after',
             },
 
-        )
+        ).populate('user').exec()
         if(doc){
-           res.json(doc) 
+            const {passwordHash, ...user_rest} = doc.user._doc
+            const {user, ...post_rest} = doc._doc
+            post_rest.user = user_rest
+            res.json(post_rest)
         }
         else{
             res.status(404).json({
-                message: 'Article not found'
+                message: 'Post not found'
             })
         }
 
@@ -32,7 +35,7 @@ export  const getOne = async (req, res) => {
     catch(err){
                 console.log(err)
                 res.status(500).json({
-                    message: 'Failed to get article'
+                    message: 'Failed to get post'
                 })
             }
 }
@@ -57,7 +60,7 @@ export const remove = async (req, res) => {
     catch(err){
         console.log(err)
         res.status(500).json({
-            message: 'Failed to get article'
+            message: 'Failed to get post'
         })
     }
 }
@@ -70,7 +73,7 @@ export const getAll = async (req, res) => {
     catch(err){
         console.log(err)
         res.status(500).json({
-            message: 'Failed to get articles'
+            message: 'Failed to get posts'
         })
     }
 }
@@ -92,7 +95,39 @@ export const create = async (req, res) => {
     catch(err){
         console.log(err)
         res.status(500).json({
-            message: 'Failed to create article'
+            message: 'Failed to create post'
         })
     }
 } 
+
+export const update = async (req, res) => {
+    try{
+        const postId = req.params.id
+        const updatePost = await PostSchema.updateOne({
+
+            _id: postId,
+        }, {
+            title: req.body.title,
+            text: req.body.text,
+            imageUrl: req.body.imageUrl,
+            user: req.userId,
+            tags: req.body.tags,
+
+        })
+        if(updatePost){
+            res.json({
+            success: true,
+        })
+      }else{
+        res.status(404).json({
+            message: 'Post not found'
+        })
+      }
+    }
+    catch (err){
+        console.log(err)
+        res.status(500).json({
+            message: 'Failed to update post'
+        })
+    }
+}
