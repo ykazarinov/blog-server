@@ -9,10 +9,10 @@ import cors from 'cors'
 
 
 
-import { registerValidation, loginValidation, postCreateValidation } from './validations.js';
+import { registerValidation, loginValidation, postCreateValidation, commentCreateValidation } from './validations.js';
 
 import {checkAuth, handleValidationErrors} from './utils/index.js';
-import {UserController, PostController} from './controllers/index.js'
+import {UserController, PostController, CommentController} from './controllers/index.js'
 
 
 mongoose.connect(process.env.DB_ACCESS
@@ -51,17 +51,22 @@ app.post('/upload',  upload.single('image'), (req, res) => {
 })
 
 app.get('/tags', PostController.getLastTags)
-
 app.get('/posts', PostController.getAll)
-
 app.get('/posts/tags', PostController.getLastTags)
 
+//-----posts--------
 app.get('/posts/:id', PostController.getOne)
 app.post('/posts', checkAuth, postCreateValidation, handleValidationErrors, PostController.create)
 app.delete('/posts/:id', checkAuth,  PostController.remove)
 app.patch('/posts/:id', checkAuth, postCreateValidation, handleValidationErrors, PostController.update)
 
-
+//-----comments--------
+app.post('/comments', checkAuth, commentCreateValidation, handleValidationErrors, CommentController.create)
+app.get('/comments', CommentController.getLastComments)
+app.get('/posts/:id/comments', CommentController.getPostComments)
+app.get('/users/:id/comments', CommentController.getUserComments)
+app.delete('/comments/:id', checkAuth, CommentController.remove)
+app.patch('/comments/:id', checkAuth, commentCreateValidation, handleValidationErrors, CommentController.update)
 
 app.listen(4444, (err)=>{
     if(err){

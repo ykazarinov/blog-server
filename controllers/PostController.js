@@ -79,7 +79,7 @@ export const remove = async (req, res) => {
     catch(err){
         console.log(err)
         res.status(500).json({
-            message: 'Failed to get post'
+            message: 'Failed to remove post'
         })
     }
 }
