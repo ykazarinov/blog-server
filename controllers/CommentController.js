@@ -21,7 +21,7 @@ export const create = async (req, res) => {
 
 export const getLastComments = async (req, res) => {
     try{
-        const comments = await CommentSchema.find().limit(5).exec()
+        const comments = await CommentSchema.find().populate('user').limit(5).exec()
         res.json(comments)
     }
     catch(err){
@@ -35,7 +35,7 @@ export const getLastComments = async (req, res) => {
 export const getPostComments = async (req, res) => {
     try{
         const myPostId = req.params.id 
-        console.log(myPostId)
+       
         const comments = await CommentSchema.find({post: myPostId}).populate('user').exec()
         res.json(comments)  
     }
